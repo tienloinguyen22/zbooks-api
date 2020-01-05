@@ -99,6 +99,7 @@ export const handler = async (command: CreateUserCommand, context: Context): Pro
     id,
     roles: [],
   });
+
   return {
     id,
   };

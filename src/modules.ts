@@ -89,7 +89,7 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
   const queryHandlerModule = requireModule(`${aggregateDir}/query_handlers/query`);
   /* eslint-disable-next-line max-len */
   const queryByIdHandlerModule = requireModule(`${aggregateDir}/query_handlers/query_by_id`);
-  queryHandlerModule &&
+  if (queryHandlerModule) {
     (() => {
       resolvers = merge(resolvers, {
         Query: {
@@ -97,8 +97,9 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
         },
       });
     })();
+  }
 
-  queryByIdHandlerModule &&
+  if (queryByIdHandlerModule) {
     (() => {
       const name = queryByIdHandlerModule.singularName || aggregateName.substring(0, aggregateName.length - 1);
       resolvers = merge(resolvers, {
@@ -107,23 +108,28 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
         },
       });
     })();
+  }
 
   const commandHandlersPath = `${aggregateDir}/command_handlers`;
   if (existsSync(commandHandlersPath)) {
     const commandHandlerNames = readdirSync(commandHandlersPath);
     const commandResolvers: { [command: string]: any } = {};
-    commandHandlerNames &&
+
+    if (commandHandlerNames) {
       commandHandlerNames
         .map((name) => name.replace('.js', ''))
         .map((name) => name.replace('.ts', ''))
         .forEach((commandHandlerName) => {
           /* eslint-disable-next-line max-len */
           const commandHandlerModule = requireModule(`${aggregateDir}/command_handlers/${commandHandlerName}`);
-          commandHandlerModule &&
+          if (commandHandlerModule) {
             (() => {
               commandResolvers[commandHandlerName] = convertCommandHandlerToResolver(commandHandlerModule.handler);
             })();
+          }
         });
+    }
+
     resolvers = merge(resolvers, {
       Mutation: {
         [aggregateName]: () => commandResolvers,

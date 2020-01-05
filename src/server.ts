@@ -12,7 +12,7 @@ import { bootstrap } from './bootstrap';
   const app = express();
   server.applyMiddleware({
     app,
-    path: '/',
+    path: '/graphql',
   });
 
   if (process.env.HTTPS === 'TRUE') {

@@ -116,8 +116,4 @@ export const typeDefs = gql`
   input RegisterWithTokenCommand {
     token: String!
   }
-
-  type CreateUserInputResult {
-    id: String
-  }
 `;

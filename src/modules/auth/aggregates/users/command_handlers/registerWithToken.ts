@@ -25,6 +25,7 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
   let loginDetail: ExternalLogin;
   let phoneNo: string | undefined;
   let email: string | undefined;
+
   try {
     const { uid } = await admin.auth().verifyIdToken(command.token);
     firebaseUser = await admin.auth().getUser(uid);
@@ -32,6 +33,7 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
     const code = err.code.replace(/[/,-]/g, '_').toUpperCase();
     throw new AppError(err.message, code);
   }
+
   const providerData = firebaseUser.providerData[0];
   if (providerData.providerId === 'google.com') {
     email = providerData.email;
@@ -60,6 +62,7 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
       email: providerData.email,
     };
   }
+
   const displayName = firebaseUser.displayName || firebaseUser.email || firebaseUser.phoneNumber || '';
   const firstName = displayName.split(' ')[0];
   const lastName = displayName
@@ -86,6 +89,7 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
     id,
     roles: [],
   });
+
   return {
     id,
   };
