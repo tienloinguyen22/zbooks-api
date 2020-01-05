@@ -1,0 +1,22 @@
+{
+  "author": "Thinh Tran",
+  "i18n": {
+    "defaultLang": "en",
+    "en": "en",
+    "vn": "vn"
+  },
+  "itemsPerPage": {
+    "default": 10,
+    "max": 50
+  },
+  "mongoConnectionString": "should_be_replaced_in_override_config",
+  "validation": {
+    "date": {
+      "length": 8
+    },
+    "string": {
+      "descriptionMaxLength": 2000,
+      "maxLength": 300
+    }
+  }
+}

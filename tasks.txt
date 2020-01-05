@@ -1,0 +1,6 @@
+1. (done) db
+2. (done) jwt token
+3. file
+4. (done) i18n - use error_code i18n
+5. query lookup done
+6. cache

@@ -1,0 +1,41 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug with Docker",
+      "protocol": "auto",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "docker-debug"],
+      "port": 5858,
+      "restart": true,
+      "timeout": 60000,
+      "localRoot": "${workspaceFolder}/dist",
+      "remoteRoot": "/node_app/dist",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug",
+      "protocol": "auto",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "debug"],
+      "restart": true,
+      "timeout": 60000,
+      "port": 5858,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}
