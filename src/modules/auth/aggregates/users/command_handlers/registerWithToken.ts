@@ -4,16 +4,17 @@ import {
   CommandResult,
   Context,
   validateSchema,
-  WithoutId,
   WithoutCommandId,
   AppError,
   addCreationInfo,
+  LoginTypes,
 } from '@app/core';
-import { User, UserRepository, RegisterWithTokenCommand, ExternalLogin } from '../interfaces';
+import { UserRepository, RegisterWithTokenCommand, ExternalLogin } from '../interfaces';
 
 export const handler = async (command: RegisterWithTokenCommand, context: Context): Promise<CommandResult> => {
-  const repository = context.dataSources.users as UserRepository;
+  const repository: UserRepository = context.dataSources.users;
 
+  // 1. Validate
   await validateSchema(
     yup.object().shape<WithoutCommandId<RegisterWithTokenCommand>>({
       token: yup.string().required(),
@@ -38,57 +39,33 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
   if (providerData.providerId === 'google.com') {
     email = providerData.email;
     loginDetail = {
-      loginType: 'GOOGLE',
-      email: providerData.email,
+      loginType: LoginTypes.google,
       uid: providerData.uid,
     };
   } else if (providerData.providerId === 'facebook.com') {
     email = providerData.email;
     loginDetail = {
-      loginType: 'FACEBOOK',
-      email: providerData.email,
+      loginType: LoginTypes.facebook,
       uid: providerData.uid,
     };
-  } else if (providerData.providerId === 'phone') {
-    loginDetail = {
-      loginType: 'PHONE_NO',
-      phoneNo: providerData.phoneNumber,
-    };
-    phoneNo = providerData.phoneNumber;
   } else {
-    email = providerData.email;
-    loginDetail = {
-      loginType: 'EMAIL',
-      email: providerData.email,
-    };
+    throw new AppError('Invalid login provider', 'auth/invalid-login-provider');
   }
 
-  const displayName = firebaseUser.displayName || firebaseUser.email || firebaseUser.phoneNumber || '';
-  const firstName = displayName.split(' ')[0];
-  const lastName = displayName
-    .split(' ')
-    .filter((_name, index) => index > 0)
-    .join(' ');
-
-  const user: WithoutId<User> = {
-    firstName,
-    lastName,
-    displayName,
+  const fullName = firebaseUser.displayName || firebaseUser.email || firebaseUser.phoneNumber || '';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user: any = {
+    _id: firebaseUser.uid,
+    fullName,
     avatarUrl: firebaseUser.photoURL,
     phoneNo,
     email,
     loginDetail,
-    roles: [],
     isActive: true,
-    firebaseId: firebaseUser.uid,
     ...addCreationInfo(context),
   };
 
   const { id } = await repository.create(user);
-  admin.auth().setCustomUserClaims(firebaseUser.uid, {
-    id,
-    roles: [],
-  });
 
   return {
     id,

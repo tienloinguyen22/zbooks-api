@@ -1,15 +1,15 @@
+import { LoginTypes } from '@app/core';
+
 export const resolvers = {
   ExternalLogin: {
     __resolveType: (login: { loginType: string }): string => {
       switch (login.loginType) {
-        case 'FACEBOOK':
+        case LoginTypes.facebook:
           return 'FacebookLogin';
-        case 'GOOGLE':
+        case LoginTypes.google:
           return 'GoogleLogin';
-        case 'PHONE_NO':
-          return 'PhoneNoLogin';
         default:
-          return 'EmailLogin';
+          return 'FacebookLogin';
       }
     },
   },

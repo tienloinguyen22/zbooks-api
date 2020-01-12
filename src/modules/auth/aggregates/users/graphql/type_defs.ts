@@ -8,58 +8,31 @@ export const typeDefs = gql`
 
   type User {
     id: ID!
-    username: String
-    email: String
-    firstName: String
-    middleName: String
-    lastName: String
-    fullName: String
+    email: String!
+    fullName: String!
+    countryCode: String
+    lineNumber: String
     phoneNo: String
     address: String
     avatarUrl: String
     dob: String
-    gender: String
+    gender: Genders
     loginDetail: ExternalLogin
-    roles: [String!]
-    registeredCompleted: Boolean
     isActive: Boolean
-    registeredAt: String
     lastLoggedInAt: String
     createdBy: String
     createdAt: String
     lastModifiedBy: String
     lastModifiedAt: String
-    firebaseId: String
   }
 
-  type FacebookLogin {
-    uid: String
-    email: String
-    loginType: String
+  type ExternalLogin {
+    uid: String!
+    loginType: LoginTypes
   }
-
-  type GoogleLogin {
-    uid: String
-    email: String
-    loginType: String
-  }
-
-  type EmailLogin {
-    email: String
-    loginType: String
-  }
-
-  type PhoneNoLogin {
-    phoneNo: String
-    loginType: String
-  }
-
-  union ExternalLogin = FacebookLogin | GoogleLogin | EmailLogin | PhoneNoLogin
 
   input UserQuery {
     filter_textSearch: String
-    # role: String
-    # loginType: String
     orderBy: String
     pageIndex: Int
     itemsPerPage: Int
@@ -75,42 +48,7 @@ export const typeDefs = gql`
   }
 
   type UserOperations {
-    create(payload: CreateUserCommand!): CommandResult
-    update(payload: UpdateUserCommand!): CommandResult
     registerWithToken(payload: RegisterWithTokenCommand!): CommandResult
-  }
-
-  input CreateUserCommand {
-    username: String!
-    email: String!
-    password: String!
-    firstName: String!
-    middleName: String
-    lastName: String!
-    phoneNo: String
-    address: String
-    avatarUrl: String
-    dob: String
-    gender: String
-    roles: [String!]!
-    isActive: Boolean!
-  }
-
-  input UpdateUserCommand {
-    id: ID!
-    username: String
-    email: String
-    password: String
-    firstName: String
-    middleName: String
-    lastName: String
-    phoneNo: String
-    address: String
-    avatarUrl: String
-    dob: String
-    gender: String
-    roles: [String!]
-    isActive: Boolean
   }
 
   input RegisterWithTokenCommand {

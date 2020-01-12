@@ -1,11 +1,11 @@
-import { TimestampInMilliseconds } from './timestamp_in_milliseconds';
+import { ISODate } from './iso_date';
 
 /**
  * Interface for auditable objects with creation & modification info
  */
 export interface IsAuditable {
   createdBy?: string;
-  createdAt?: TimestampInMilliseconds;
+  createdAt?: ISODate;
   lastModifiedBy?: string;
-  lastModifiedAt?: TimestampInMilliseconds;
+  lastModifiedAt?: ISODate;
 }

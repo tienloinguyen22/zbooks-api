@@ -23,4 +23,15 @@ export const baseTypeDefs = gql`
     prevCursor: String
     nextCursor: String
   }
+
+  enum Genders {
+    male
+    female
+    other
+  }
+
+  enum LoginTypes {
+    facebook
+    google
+  }
 `;
