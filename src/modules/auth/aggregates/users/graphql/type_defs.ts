@@ -7,7 +7,8 @@ export const typeDefs = gql`
 
   type QueryUsersOperations {
     findById(id: ID!): User
-    find(payload: UserQuery): UserQueryResult
+    find(payload: FindUsersQuery!): UserQueryResult
+    findByToken(payload: FindUserByTokenQuery!): User
   }
 
   type User {
@@ -36,7 +37,11 @@ export const typeDefs = gql`
     loginType: LoginTypes
   }
 
-  input UserQuery {
+  input FindUserByTokenQuery {
+    token: String!
+  }
+
+  input FindUsersQuery {
     filter_textSearch: String
     orderBy: String
     pageIndex: Int

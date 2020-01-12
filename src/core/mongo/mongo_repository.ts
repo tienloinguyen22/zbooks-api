@@ -37,6 +37,10 @@ export class MongoRepository<T extends Aggregate> extends DataSource implements 
     return dbQuery.lean();
   }
 
+  async findOne(conditions?: Condition<T>[]): Promise<T | undefined> {
+    return buildMongoConditions<T>(this.model, conditions, true).lean();
+  }
+
   async count(conditions?: Condition<T>[]): Promise<number> {
     return buildMongoConditions<T>(this.model, conditions).countDocuments();
   }

@@ -75,8 +75,6 @@ export const convertMutationHandlerToResolver = (handler: (payload: any, context
 };
 
 const bootstrapAggregate = (aggregateName: string, moduleName: string): AggregateConfiguration => {
-  console.log('TCL: moduleName', moduleName);
-  console.log('TCL: aggregateName', aggregateName);
   const aggregateDir = `${modulesDir}/${moduleName}/aggregates/${aggregateName}`;
   const typeDefsModule = requireModule(`${aggregateDir}/graphql/type_defs`);
   const resolversModule = requireModule(`${aggregateDir}/graphql/resolvers`);

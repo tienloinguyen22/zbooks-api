@@ -60,16 +60,20 @@ const model = createMongoModel({
     lastLoggedInAt: {
       type: Date,
     },
-  }).index(
-    {
-      fullName: 'text',
-      email: 'text',
-      phoneNo: 'text',
-    },
-    {
-      name: 'usersTextSearch',
-    },
-  ),
+  })
+    .index(
+      {
+        fullName: 'text',
+        email: 'text',
+        phoneNo: 'text',
+      },
+      {
+        name: 'usersTextSearch',
+      },
+    )
+    .index({
+      firebaseId: 1,
+    }),
 });
 
 export class UsersRepository extends MongoRepository<User> {

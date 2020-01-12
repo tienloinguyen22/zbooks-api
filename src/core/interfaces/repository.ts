@@ -10,6 +10,7 @@ export interface Repository<T extends Aggregate> {
   delete(id: string): Promise<void>;
   count(conditions?: Condition<T>[]): Promise<number>;
   findById(id: string, fields?: Record<string, 0 | 1>): Promise<T | undefined>;
+  findOne(conditions?: Condition<T>[]): Promise<T | undefined>;
   find(conditions?: Condition<T>[], orderBy?: string, fields?: Record<string, 0 | 1>): Promise<T[]>;
   findWithOffsetPagination(
     pagination: OffsetPagination,

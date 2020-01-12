@@ -4,8 +4,13 @@ import { Condition } from '../interfaces';
 export const buildMongoConditions = <T>(
   model: Model<Document>,
   conditions?: Condition<T>[],
+  isFindOne?: boolean,
 ): DocumentQuery<Document[], Document> => {
   let dbQuery = model.find();
+  if (isFindOne) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dbQuery = model.findOne() as any;
+  }
 
   if (conditions) {
     conditions.forEach((condition) => {
