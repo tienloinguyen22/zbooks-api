@@ -8,6 +8,7 @@ export const typeDefs = gql`
 
   type User {
     id: ID!
+    firebaseId: String!
     email: String!
     fullName: String!
     countryCode: String

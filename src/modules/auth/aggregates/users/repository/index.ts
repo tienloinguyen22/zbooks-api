@@ -16,7 +16,7 @@ const LoginDetailSchema = new Schema({
 const model = createMongoModel({
   name: 'User',
   schema: new Schema({
-    _id: {
+    firebaseId: {
       type: String,
       required: true,
       unique: true,

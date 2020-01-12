@@ -8,8 +8,9 @@ import {
   AppError,
   addCreationInfo,
   LoginTypes,
+  WithoutId,
 } from '@app/core';
-import { UserRepository, RegisterWithTokenCommand, ExternalLogin } from '../interfaces';
+import { UserRepository, RegisterWithTokenCommand, ExternalLogin, User } from '../interfaces';
 
 export const handler = async (command: RegisterWithTokenCommand, context: Context): Promise<CommandResult> => {
   const repository: UserRepository = context.dataSources.users;
@@ -22,49 +23,43 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
     command,
   );
 
+  // 2. Build User record
   let firebaseUser: admin.auth.UserRecord;
   let loginDetail: ExternalLogin;
-  let phoneNo: string | undefined;
-  let email: string | undefined;
 
   try {
-    const { uid } = await admin.auth().verifyIdToken(command.token);
-    firebaseUser = await admin.auth().getUser(uid);
+    const decodeFirebaseTokenInfo = await admin.auth().verifyIdToken(command.token);
+    firebaseUser = await admin.auth().getUser(decodeFirebaseTokenInfo.uid);
   } catch (err) {
-    const code = err.code.replace(/[/,-]/g, '_').toUpperCase();
-    throw new AppError(err.message, code);
+    throw new AppError(err.message, err.code);
   }
 
   const providerData = firebaseUser.providerData[0];
   if (providerData.providerId === 'google.com') {
-    email = providerData.email;
     loginDetail = {
       loginType: LoginTypes.google,
       uid: providerData.uid,
     };
   } else if (providerData.providerId === 'facebook.com') {
-    email = providerData.email;
     loginDetail = {
       loginType: LoginTypes.facebook,
       uid: providerData.uid,
     };
   } else {
-    throw new AppError('Invalid login provider', 'auth/invalid-login-provider');
+    throw new AppError('Invalid login provider', 'auth/invalid-auth-provider');
   }
 
-  const fullName = firebaseUser.displayName || firebaseUser.email || firebaseUser.phoneNumber || '';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user: any = {
-    _id: firebaseUser.uid,
-    fullName,
+  // 3. Save to db
+  const user: WithoutId<User> = {
+    firebaseId: firebaseUser.uid,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    email: firebaseUser.email!,
+    fullName: firebaseUser.displayName || firebaseUser.email || '',
     avatarUrl: firebaseUser.photoURL,
-    phoneNo,
-    email,
     loginDetail,
     isActive: true,
     ...addCreationInfo(context),
   };
-
   const { id } = await repository.create(user);
 
   return {
