@@ -5,7 +5,7 @@ import { OffsetPagination } from './offset_pagination';
 
 export type UpdateEntity<T> = { id: string } & Partial<T>;
 export interface Repository<T extends Aggregate> {
-  create(entity: WithoutId<T>): Promise<{ id: string }>;
+  create(entity: WithoutId<T>): Promise<T>;
   update(entity: { id: string } & Partial<T>): Promise<void>;
   delete(id: string): Promise<void>;
   count(conditions?: Condition<T>[]): Promise<number>;

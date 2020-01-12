@@ -1,24 +1,15 @@
 import * as yup from 'yup';
 import admin from 'firebase-admin';
-import {
-  CommandResult,
-  Context,
-  validateSchema,
-  WithoutCommandId,
-  AppError,
-  addCreationInfo,
-  LoginTypes,
-  WithoutId,
-} from '@app/core';
+import { Context, validateSchema, AppError, addCreationInfo, LoginTypes, WithoutId, MutationResult } from '@app/core';
 import { config } from '@app/config';
-import { UserRepository, RegisterWithTokenCommand, ExternalLogin, User } from '../interfaces';
+import { UserRepository, RegisterWithTokenPayload, ExternalLogin, User } from '../interfaces';
 
-export const handler = async (command: RegisterWithTokenCommand, context: Context): Promise<CommandResult> => {
+export const handler = async (payload: RegisterWithTokenPayload, context: Context): Promise<MutationResult<User>> => {
   const repository: UserRepository = context.dataSources.users;
 
   // 1. Validate
   await validateSchema(
-    yup.object().shape<WithoutCommandId<RegisterWithTokenCommand>>({
+    yup.object().shape<RegisterWithTokenPayload>({
       token: yup.string().required('auth/missing-token'),
       email: yup
         .string()
@@ -26,7 +17,7 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
         .matches(config.regex.email, 'auth/invalid-email'),
       fullName: yup.string().required('auth/missing-full-name'),
     }),
-    command,
+    payload,
   );
 
   // 2. Build User record
@@ -34,7 +25,7 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
   let loginDetail: ExternalLogin;
 
   try {
-    const decodeFirebaseTokenInfo = await admin.auth().verifyIdToken(command.token);
+    const decodeFirebaseTokenInfo = await admin.auth().verifyIdToken(payload.token);
     firebaseUser = await admin.auth().getUser(decodeFirebaseTokenInfo.uid);
   } catch (err) {
     throw new AppError(err.message, err.code);
@@ -59,15 +50,12 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
   const user: WithoutId<User> = {
     firebaseId: firebaseUser.uid,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    email: command.email,
-    fullName: command.fullName,
+    email: payload.email,
+    fullName: payload.fullName,
     loginDetail,
     isActive: true,
     ...addCreationInfo(context),
   };
-  const { id } = await repository.create(user);
-
-  return {
-    id,
-  };
+  const newUser = await repository.create(user);
+  return newUser;
 };

@@ -9,10 +9,6 @@ export const baseTypeDefs = gql`
     _: String
   }
 
-  type CommandResult {
-    id: ID!
-  }
-
   type OffsetPaginationResult {
     type: String!
     total: Int!

@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable class-methods-use-this */
+
 import { DataSource } from 'apollo-datasource';
 import { Document, Model } from 'mongoose';
 import { Repository, Aggregate, WithoutId, QueryResult, Condition, OffsetPagination } from '../interfaces';
@@ -13,11 +15,9 @@ export class MongoRepository<T extends Aggregate> extends DataSource implements 
     this.model = model;
   }
 
-  async create(entity: WithoutId<T>): Promise<{ id: string }> {
-    const { id } = await this.model.create(entity);
-    return {
-      id,
-    };
+  async create(entity: WithoutId<T>): Promise<T> {
+    const newRecord = (await this.model.create(entity)) as any;
+    return newRecord;
   }
 
   async update(entity: T): Promise<void> {

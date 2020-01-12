@@ -2,8 +2,12 @@ import { gql } from 'apollo-server-express';
 
 export const typeDefs = gql`
   extend type Query {
-    user(id: ID!): User
-    users(payload: UserQuery): UserQueryResult
+    users: QueryUsersOperations;
+  }
+
+  type QueryUsersOperations {
+    findById(id: ID!): User
+    find(payload: UserQuery): UserQueryResult
   }
 
   type User {
@@ -49,10 +53,10 @@ export const typeDefs = gql`
   }
 
   type UserOperations {
-    registerWithToken(payload: RegisterWithTokenCommand!): CommandResult
+    registerWithToken(payload: RegisterWithTokenPayload!): User
   }
 
-  input RegisterWithTokenCommand {
+  input RegisterWithTokenPayload {
     token: String!
     fullName: String!
     email: String!
