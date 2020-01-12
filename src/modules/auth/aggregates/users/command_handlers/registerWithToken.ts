@@ -10,6 +10,7 @@ import {
   LoginTypes,
   WithoutId,
 } from '@app/core';
+import { config } from '@app/config';
 import { UserRepository, RegisterWithTokenCommand, ExternalLogin, User } from '../interfaces';
 
 export const handler = async (command: RegisterWithTokenCommand, context: Context): Promise<CommandResult> => {
@@ -18,7 +19,12 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
   // 1. Validate
   await validateSchema(
     yup.object().shape<WithoutCommandId<RegisterWithTokenCommand>>({
-      token: yup.string().required(),
+      token: yup.string().required('auth/missing-token'),
+      email: yup
+        .string()
+        .required('auth/missing-email')
+        .matches(config.regex.email, 'auth/invalid-email'),
+      fullName: yup.string().required('auth/missing-full-name'),
     }),
     command,
   );
@@ -53,9 +59,8 @@ export const handler = async (command: RegisterWithTokenCommand, context: Contex
   const user: WithoutId<User> = {
     firebaseId: firebaseUser.uid,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    email: firebaseUser.email!,
-    fullName: firebaseUser.displayName || firebaseUser.email || '',
-    avatarUrl: firebaseUser.photoURL,
+    email: command.email,
+    fullName: command.fullName,
     loginDetail,
     isActive: true,
     ...addCreationInfo(context),

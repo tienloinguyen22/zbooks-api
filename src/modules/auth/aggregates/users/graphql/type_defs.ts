@@ -54,5 +54,7 @@ export const typeDefs = gql`
 
   input RegisterWithTokenCommand {
     token: String!
+    fullName: String!
+    email: String!
   }
 `;
