@@ -20,9 +20,12 @@ export class MongoRepository<T extends Aggregate> extends DataSource implements 
     return newRecord;
   }
 
-  async update(entity: T): Promise<void> {
+  async update(entity: T): Promise<T> {
     const { id, ...updateOjbect } = entity;
-    await this.model.findByIdAndUpdate(id, updateOjbect);
+    await this.model.findByIdAndUpdate(id, updateOjbect).lean();
+
+    const newInfo = (await this.findById(id)) as T;
+    return newInfo;
   }
 
   async delete(id: string): Promise<void> {

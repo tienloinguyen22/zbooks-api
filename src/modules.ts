@@ -29,7 +29,7 @@ const modulesDir = `${__dirname}/modules`;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const convertQueryHandlerToResolver = (handler: (query: any, context: any) => Promise<any>): any => {
-  return async (_parent: any, args: any, context: any, info: any) => {
+  return async (args: any, context: any, info: any) => {
     const fields = graphqlFields(
       info,
       {},
@@ -83,7 +83,8 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
   };
 
   // Register queries resolvers
-  const queriesPath = requireModule(`${aggregateDir}/queries`);
+  const queriesPath = `${aggregateDir}/queries`;
+
   if (existsSync(queriesPath)) {
     const queries = readdirSync(queriesPath);
     const queryResolvers: { [query: string]: any } = {};
@@ -101,10 +102,17 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
           }
         });
     }
+
+    resolvers = merge(resolvers, {
+      Query: {
+        [aggregateName]: () => queryResolvers,
+      },
+    });
   }
 
   // Register mutations resolvers
   const mutationsPath = `${aggregateDir}/mutations`;
+
   if (existsSync(mutationsPath)) {
     const mutations = readdirSync(mutationsPath);
     const mutationResolvers: { [mutation: string]: any } = {};

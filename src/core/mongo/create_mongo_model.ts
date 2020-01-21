@@ -28,7 +28,7 @@ const cleanResult = (result: Document | Document[]): void => {
 };
 
 export const createMongoModel = ({ name, schema }: { name: string; schema: Schema }): Model<Document> => {
-  ['create', 'find', 'findOne'].forEach((method) => schema.post(method, cleanResult));
+  ['create', 'find', 'findOne', 'findById', 'findByIdAndUpdate'].forEach((method) => schema.post(method, cleanResult));
   const model = mongoose.model(name, schema);
   if (debug()) {
     model.ensureIndexes();

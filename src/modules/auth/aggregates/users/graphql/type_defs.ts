@@ -9,6 +9,7 @@ export const typeDefs = gql`
     findById(id: ID!): User
     find(payload: FindUsersQuery!): UserQueryResult
     findByToken(payload: FindUserByTokenQuery!): User
+    me: User
   }
 
   type User {
@@ -17,11 +18,10 @@ export const typeDefs = gql`
     email: String!
     fullName: String!
     countryCode: String
-    lineNumber: String
     phoneNo: String
     address: String
     avatarUrl: String
-    dob: String
+    dob: Date
     gender: Genders
     loginDetail: ExternalLogin
     isActive: Boolean
@@ -58,6 +58,7 @@ export const typeDefs = gql`
   }
 
   type UserOperations {
+    me(payload: UpdateUserInfoPayload): User
     registerWithToken(payload: RegisterWithTokenPayload!): User
   }
 
@@ -65,5 +66,16 @@ export const typeDefs = gql`
     token: String!
     fullName: String!
     email: String!
+  }
+
+  input UpdateUserInfoPayload {
+    email: String
+    fullName: String
+    countryCode: String
+    phoneNo: String
+    address: String
+    avatarUrl: String
+    dob: String
+    gender: Genders
   }
 `;

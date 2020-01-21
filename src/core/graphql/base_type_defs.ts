@@ -30,4 +30,6 @@ export const baseTypeDefs = gql`
     facebook
     google
   }
+
+  scalar Date
 `;

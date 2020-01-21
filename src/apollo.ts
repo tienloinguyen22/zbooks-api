@@ -18,7 +18,9 @@ export const getApolloConfig = ({ typeDefs, resolvers }: ApolloParams): Config =
   playground: true,
   introspection: true,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context: async ({ req, event }: { req: any; event: any }) => ({
-    user: await validateToken(req ? req.headers.token : event.headers.token),
-  }),
+  context: async ({ req, event }: { req: any; event: any }) => {
+    return {
+      user: await validateToken(req ? req.headers.token : event.headers.token, new UsersRepository()),
+    };
+  },
 });

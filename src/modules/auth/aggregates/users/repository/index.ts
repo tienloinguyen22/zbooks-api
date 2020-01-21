@@ -19,7 +19,6 @@ const model = createMongoModel({
     firebaseId: {
       type: String,
       required: true,
-      unique: true,
     },
     email: {
       type: String,
@@ -31,9 +30,6 @@ const model = createMongoModel({
       required: true,
     },
     countryCode: {
-      type: String,
-    },
-    lineNumber: {
       type: String,
     },
     phoneNo: {

@@ -9,8 +9,7 @@ export interface User extends Aggregate, IsAuditable {
   email: string;
   fullName: string;
   countryCode?: string;
-  lineNumber?: string;
-  phoneNo?: string; // countryCode + lineNumber
+  phoneNo?: string;
   address?: string;
   avatarUrl?: string;
   dob?: ISODate;

@@ -17,3 +17,4 @@ export * from './find_with_offset_pagination';
 export * from './find_by_id';
 export * from './add_creation_info';
 export * from './add_modification_info';
+export * from './validate_authenticate';
