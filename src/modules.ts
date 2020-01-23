@@ -70,7 +70,8 @@ export const convertMutationHandlerToResolver = (handler: (payload: any, context
     );
     context.fields = fields;
 
-    return withErrorHandler(handler)(sanitizePayload(args.payload), context);
+    const isUpload = !!args.file;
+    return withErrorHandler(handler)(isUpload ? args.file : sanitizePayload(args.payload), context);
   };
 };
 

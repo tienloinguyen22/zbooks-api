@@ -15,6 +15,9 @@ import { bootstrap } from './bootstrap';
     path: '/graphql',
   });
 
+  // Serving static files
+  app.use('/static/images', express.static('uploads/images'));
+
   if (process.env.HTTPS === 'TRUE') {
     const key = fs.readFileSync(`${__dirname}/../selfsigned.key`);
     const cert = fs.readFileSync(`${__dirname}/../selfsigned.crt`);
