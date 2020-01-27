@@ -32,7 +32,7 @@ export const handler = async (payload: UpdateUserInfoPayload, context: Context):
       avatarUrl: yup
         .string()
         .nullable(true)
-        .matches(config.regex.url, 'auth/invalid-avatar-url'),
+        .matches(config.uploads.allowedImageExt, 'auth/invalid-avatar-url'),
       dob: yup
         .string()
         .nullable(true)
