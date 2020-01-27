@@ -2,6 +2,7 @@ import { DocumentNode } from 'graphql';
 import { UsersRepository } from '@app/modules/auth/aggregates/users/repository';
 import { validateToken } from '@app/core';
 import { Config } from 'apollo-server-express';
+import { BooksRepository } from './modules/books/aggregates/books/repository';
 
 interface ApolloParams {
   typeDefs: DocumentNode[];
@@ -14,6 +15,7 @@ export const getApolloConfig = ({ typeDefs, resolvers }: ApolloParams): Config =
   resolvers,
   dataSources: () => ({
     users: new UsersRepository(),
+    books: new BooksRepository(),
   }),
   playground: true,
   introspection: true,
