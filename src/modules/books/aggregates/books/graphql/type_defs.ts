@@ -25,6 +25,10 @@ export const typeDefs = gql`
     referer: String
     coverUrl: String
     downloadCount: Int
+    createdBy: String
+    createdAt: String
+    lastModifiedBy: String
+    lastModifiedAt: String
   }
 
   input FindBooksQuery {
