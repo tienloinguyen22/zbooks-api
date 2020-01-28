@@ -1,4 +1,11 @@
-import { Context, validateAuthenticate, validateSchema, MongoQueryOperators, AppError } from '@app/core';
+import {
+  Context,
+  validateAuthenticate,
+  validateSchema,
+  MongoQueryOperators,
+  AppError,
+  addCreationInfo,
+} from '@app/core';
 import * as yup from 'yup';
 import _ from 'lodash';
 import { FindByBookQuery, FavoriteBook, FavoriteBookRepository } from '../interfaces';
@@ -39,6 +46,7 @@ export const handler = async (query: FindByBookQuery, context: Context): Promise
   const favoriteBook = await repository.create({
     book: query.book,
     user: _.get(context, 'user.id'),
+    ...addCreationInfo(context),
   });
   return favoriteBook;
 };

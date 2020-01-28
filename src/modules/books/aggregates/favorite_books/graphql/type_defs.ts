@@ -6,17 +6,29 @@ export const typeDefs = gql`
   }
 
   type QueryFavoriteBooksOperations {
+    find(payload: FindFavoriteBooksQuery!): FavoriteBookQueryResult
     findByBook(payload: FindByBookQuery!): FavoriteBook
   }
 
   type FavoriteBook {
     id: ID!
-    user: String!
-    book: String!
+    user: User!
+    book: Book!
     createdBy: String
     createdAt: String
     lastModifiedBy: String
     lastModifiedAt: String
+  }
+
+  type FavoriteBookQueryResult {
+    data: [FavoriteBook!]
+    pagination: OffsetPaginationResult
+  }
+
+  input FindFavoriteBooksQuery {
+    orderBy: String
+    pageIndex: Int
+    itemsPerPage: Int
   }
 
   input FindByBookQuery {
