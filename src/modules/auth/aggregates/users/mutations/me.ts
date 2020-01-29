@@ -41,6 +41,7 @@ export const handler = async (payload: UpdateUserInfoPayload, context: Context):
         .string()
         .nullable(true)
         .oneOf([Genders.female, Genders.male, Genders.other], 'auth/invalid-gender'),
+      preferenceCategories: yup.array().of(yup.string()),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any),
     payload,

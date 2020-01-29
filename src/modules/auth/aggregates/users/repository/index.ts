@@ -56,6 +56,10 @@ const model = createMongoModel({
     lastLoggedInAt: {
       type: Date,
     },
+    preferenceCategories: {
+      type: [String],
+      default: [],
+    },
   })
     .index(
       {

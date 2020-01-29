@@ -18,4 +18,5 @@ export interface User extends Aggregate, IsAuditable {
   isActive: boolean;
   lastLoggedInAt?: ISODate;
   firebaseId: string;
+  preferenceCategories: string[];
 }

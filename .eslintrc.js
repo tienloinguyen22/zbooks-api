@@ -39,7 +39,8 @@ module.exports = {
     }], // let prettier do its job,
     '@typescript-eslint/no-explicit-any': ['error'],
     'no-null/no-null': ['error'],
-    'no-underscore-dangle': ["error", { "allow": ["_id", "__resolveType", "__v"] }]
+    'no-underscore-dangle': ["error", { "allow": ["_id", "__resolveType", "__v"] }],
+    '@typescript-eslint/camelcase': 0,
   },
   settings: {
     react: {

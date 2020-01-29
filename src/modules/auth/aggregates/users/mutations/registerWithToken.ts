@@ -54,6 +54,7 @@ export const handler = async (payload: RegisterWithTokenPayload, context: Contex
     fullName: payload.fullName,
     loginDetail,
     isActive: true,
+    preferenceCategories: [],
     ...addCreationInfo(context),
   };
   const newUser = await repository.create(user);

@@ -24,6 +24,7 @@ export const typeDefs = gql`
     dob: Date
     gender: Genders
     loginDetail: ExternalLogin
+    preferenceCategories: [String!]
     isActive: Boolean
     lastLoggedInAt: String
     createdBy: String
@@ -77,5 +78,6 @@ export const typeDefs = gql`
     avatarUrl: String
     dob: String
     gender: Genders
+    preferenceCategories: [String!]
   }
 `;

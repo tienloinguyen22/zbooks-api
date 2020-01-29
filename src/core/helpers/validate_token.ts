@@ -22,6 +22,7 @@ export const validateToken = async (token: string, usersRespository: UserReposit
       return {
         id: user.id,
         fullName: user.fullName,
+        preferenceCategories: user.preferenceCategories,
         roles: [],
       };
     }

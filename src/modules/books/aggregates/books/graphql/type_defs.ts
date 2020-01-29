@@ -8,6 +8,7 @@ export const typeDefs = gql`
   type QueryBooksOperations {
     findById(id: ID!): Book
     find(payload: FindBooksQuery!): BookQueryResult
+    findByUserPreferences(payload: FindBooksQuery!): BookQueryResult
   }
 
   type Book {
