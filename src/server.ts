@@ -12,8 +12,11 @@ import { bootstrap } from './bootstrap';
   const app = express();
   server.applyMiddleware({
     app,
-    path: '/',
+    path: '/graphql',
   });
+
+  // Serving static files
+  app.use('/static/images', express.static('uploads/images'));
 
   if (process.env.HTTPS === 'TRUE') {
     const key = fs.readFileSync(`${__dirname}/../selfsigned.key`);

@@ -9,10 +9,6 @@ export const baseTypeDefs = gql`
     _: String
   }
 
-  type CommandResult {
-    id: ID!
-  }
-
   type OffsetPaginationResult {
     type: String!
     total: Int!
@@ -23,4 +19,17 @@ export const baseTypeDefs = gql`
     prevCursor: String
     nextCursor: String
   }
+
+  enum Genders {
+    male
+    female
+    other
+  }
+
+  enum LoginTypes {
+    facebook
+    google
+  }
+
+  scalar Date
 `;

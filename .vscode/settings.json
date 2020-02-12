@@ -22,5 +22,11 @@
   "plantuml.includepaths": ["docs/diagrams/style", "docs/diagrams/src"],
   "plantuml.diagramsRoot": "docs/diagrams/src",
   "plantuml.exportOutDir": "docs/diagrams/out",
-  "colorize.languages": ["javascript", "typescript"]
+  "colorize.languages": [
+    "javascript",
+    "typescript"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

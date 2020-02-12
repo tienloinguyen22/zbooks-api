@@ -1,18 +1,32 @@
 import admin from 'firebase-admin';
-import { AuthUser } from '../interfaces';
+import { UserRepository } from '@app/modules/auth/aggregates/users/interfaces';
+import { AuthUser, MongoQueryOperators } from '../interfaces';
 import { AppError } from './app_error';
 
-export const validateToken = async (token: string): Promise<AuthUser | undefined> => {
+export const validateToken = async (token: string, usersRespository: UserRepository): Promise<AuthUser | undefined> => {
   if (!token) {
     return undefined;
   }
+
   try {
-    const { id, name, roles } = await admin.auth().verifyIdToken(token);
-    return {
-      id,
-      name,
-      roles,
-    };
+    const verifyIdTokenResult = await admin.auth().verifyIdToken(token);
+    const user = await usersRespository.findOne([
+      {
+        field: 'firebaseId',
+        operator: MongoQueryOperators.equals,
+        value: verifyIdTokenResult.uid,
+      },
+    ]);
+
+    if (user) {
+      return {
+        id: user.id,
+        fullName: user.fullName,
+        preferenceCategories: user.preferenceCategories,
+        roles: [],
+      };
+    }
+    return undefined;
   } catch (err) {
     throw new AppError('Invalid token', 'INVALID_TOKEN');
   }

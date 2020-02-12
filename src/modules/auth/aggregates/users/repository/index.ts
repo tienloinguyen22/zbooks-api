@@ -1,66 +1,78 @@
-import { MongoRepository, createMongoModel } from '@app/core';
+import { MongoRepository, createMongoModel, Genders, LoginTypes } from '@app/core';
 import { Schema } from 'mongoose';
 import { User } from '../interfaces';
 
+const LoginDetailSchema = new Schema({
+  uid: {
+    type: String,
+    required: true,
+  },
+  loginType: {
+    type: String,
+    enum: [LoginTypes.facebook, LoginTypes.google],
+  },
+});
+
 const model = createMongoModel({
-  name: 'users',
+  name: 'User',
   schema: new Schema({
-    username: String,
-    email: String,
-    firstName: String,
-    middleName: String,
-    lastName: String,
-    fullName: String,
-    phoneNo: String,
-    address: String,
-    avatarUrl: String,
-    dob: String,
-    gender: String,
-    loginDetail: Object,
-    roles: Array,
-    isActive: Boolean,
-    lastLoggedInAt: String,
-    createdBy: String,
-    createdAt: String,
-    lastModifiedBy: String,
-    lastModifiedAt: String,
-    firebaseId: String,
+    firebaseId: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    fullName: {
+      type: String,
+      required: true,
+    },
+    countryCode: {
+      type: String,
+    },
+    phoneNo: {
+      type: String,
+    },
+    address: {
+      type: String,
+    },
+    avatarUrl: {
+      type: String,
+    },
+    dob: {
+      type: Date,
+    },
+    gender: {
+      type: String,
+      enum: [Genders.female, Genders.male, Genders.other],
+    },
+    loginDetail: LoginDetailSchema,
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastLoggedInAt: {
+      type: Date,
+    },
+    preferenceCategories: {
+      type: [String],
+      default: [],
+    },
   })
     .index(
       {
-        username: 1,
+        fullName: 'text',
+        email: 'text',
+        phoneNo: 'text',
       },
       {
-        unique: true,
-        partialFilterExpression: {
-          username: {
-            $type: 'string',
-          },
-        },
-      },
-    )
-    .index(
-      {
-        firebaseId: 1,
-      },
-      {
-        unique: true,
-        partialFilterExpression: {
-          firebaseId: {
-            $type: 'string',
-          },
-        },
+        name: 'usersTextSearch',
       },
     )
     .index({
-      fullName: 'text',
-      email: 'text',
-    })
-    .index({
-      lastLoggedInAt: -1,
-    })
-    .index({
-      createdAt: -1,
+      firebaseId: 1,
     }),
 });
 

@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable class-methods-use-this */
+
 import { DataSource } from 'apollo-datasource';
 import { Document, Model } from 'mongoose';
 import { Repository, Aggregate, WithoutId, QueryResult, Condition, OffsetPagination } from '../interfaces';
@@ -13,16 +15,17 @@ export class MongoRepository<T extends Aggregate> extends DataSource implements 
     this.model = model;
   }
 
-  async create(entity: WithoutId<T>): Promise<{ id: string }> {
-    const { id } = await this.model.create(entity);
-    return {
-      id,
-    };
+  async create(entity: WithoutId<T>): Promise<T> {
+    const newRecord = (await this.model.create(entity)) as any;
+    return newRecord;
   }
 
-  async update(entity: T): Promise<void> {
+  async update(entity: T): Promise<T> {
     const { id, ...updateOjbect } = entity;
-    await this.model.findByIdAndUpdate(id, updateOjbect);
+    await this.model.findByIdAndUpdate(id, updateOjbect).lean();
+
+    const newInfo = (await this.findById(id)) as T;
+    return newInfo;
   }
 
   async delete(id: string): Promise<void> {
@@ -35,6 +38,10 @@ export class MongoRepository<T extends Aggregate> extends DataSource implements 
       dbQuery = dbQuery.select(fields);
     }
     return dbQuery.lean();
+  }
+
+  async findOne(conditions?: Condition<T>[]): Promise<T | undefined> {
+    return buildMongoConditions<T>(this.model, conditions, true).lean();
   }
 
   async count(conditions?: Condition<T>[]): Promise<number> {

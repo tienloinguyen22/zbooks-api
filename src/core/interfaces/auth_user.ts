@@ -1,5 +1,6 @@
 export interface AuthUser {
   id: string;
-  name: string;
+  fullName: string;
+  preferenceCategories: string[];
   roles?: string[];
 }

@@ -1,7 +1,7 @@
 {
   "author": {
-    "email": "quangthinhtran3588@gmail.com",
-    "name": "Thinh Tran"
+    "email": "tienloinguyen22@gmail.com",
+    "name": "Neoflies"
   },
   "dependencies": {
     "@babel/runtime": "^7.5.5",
@@ -19,7 +19,8 @@
     "i18next": "^17.0.13",
     "lodash": "^4.17.15",
     "mongoose": "^5.7.6",
-    "uuid": "^3.3.3",
+    "sharp": "^0.24.0",
+    "uuid": "^3.4.0",
     "yup": "^0.27.0"
   },
   "description": "A starter kit for making api faster, better",
@@ -37,6 +38,7 @@
     "@types/lodash": "^4.14.138",
     "@types/mongoose": "^5.5.22",
     "@types/node": "^12.7.2",
+    "@types/sharp": "^0.24.0",
     "@types/uuid": "^3.4.5",
     "@types/yup": "^0.26.23",
     "@typescript-eslint/eslint-plugin": "^2.3.0",
@@ -87,7 +89,7 @@
     "start": "node ./dist/server.js",
     "test": "jest --detectOpenHandles --verbose",
     "type-check": "tsc --build tsconfig.json",
-    "validate": "yarn lint && yarn type-check && yarn build && yarn test",
+    "validate": "yarn lint && yarn type-check && yarn build",
     "watch": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline --watch",
     "update-travis-config": "zip -r production.zip environments/production && travis encrypt-file --com production.zip"
   },

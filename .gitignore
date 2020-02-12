@@ -77,3 +77,6 @@ selfsigned.key
 # serverless
 .serverless
 .serverless-deploy
+
+# uploads folder
+/uploads/

@@ -8,7 +8,6 @@ import { readdirSync, existsSync } from 'fs';
 import { baseTypeDefs, baseResolvers, sanitizePayload, withErrorHandler, requireModule } from '@app/core';
 import merge from 'lodash/fp/merge';
 import graphqlFields from 'graphql-fields';
-import uuid from 'uuid/v4';
 
 interface AggregateConfiguration {
   typeDefs: DocumentNode;
@@ -30,7 +29,7 @@ const modulesDir = `${__dirname}/modules`;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const convertQueryHandlerToResolver = (handler: (query: any, context: any) => Promise<any>): any => {
-  return async (_parent: any, args: any, context: any, info: any) => {
+  return async (args: any, context: any, info: any) => {
     const fields = graphqlFields(
       info,
       {},
@@ -42,6 +41,7 @@ export const convertQueryHandlerToResolver = (handler: (query: any, context: any
     Object.keys(fields.data || fields).forEach((key) => {
       context.fields[key] = 1;
     });
+
     let query: Record<string, any> = {};
     if (args.payload) {
       query = {
@@ -54,11 +54,12 @@ export const convertQueryHandlerToResolver = (handler: (query: any, context: any
         id: args.id,
       };
     }
+
     return withErrorHandler(handler)(sanitizePayload(query), context);
   };
 };
 
-export const convertCommandHandlerToResolver = (handler: (command: any, context: any) => Promise<any>): any => {
+export const convertMutationHandlerToResolver = (handler: (payload: any, context: any) => Promise<any>): any => {
   return async (args: any, context: any, info: any) => {
     const fields = graphqlFields(
       info,
@@ -68,13 +69,9 @@ export const convertCommandHandlerToResolver = (handler: (command: any, context:
       },
     );
     context.fields = fields;
-    return withErrorHandler(handler)(
-      sanitizePayload({
-        commandId: uuid(),
-        ...args.payload,
-      }),
-      context,
-    );
+
+    const isUpload = !!args.file;
+    return withErrorHandler(handler)(isUpload ? args.file : sanitizePayload(args.payload), context);
   };
 };
 
@@ -86,47 +83,59 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
     resolvers: {},
   };
 
-  const queryHandlerModule = requireModule(`${aggregateDir}/query_handlers/query`);
-  /* eslint-disable-next-line max-len */
-  const queryByIdHandlerModule = requireModule(`${aggregateDir}/query_handlers/query_by_id`);
-  queryHandlerModule &&
-    (() => {
-      resolvers = merge(resolvers, {
-        Query: {
-          [aggregateName]: convertQueryHandlerToResolver(queryHandlerModule.handler),
-        },
-      });
-    })();
+  // Register queries resolvers
+  const queriesPath = `${aggregateDir}/queries`;
 
-  queryByIdHandlerModule &&
-    (() => {
-      const name = queryByIdHandlerModule.singularName || aggregateName.substring(0, aggregateName.length - 1);
-      resolvers = merge(resolvers, {
-        Query: {
-          [name]: convertQueryHandlerToResolver(queryByIdHandlerModule.handler),
-        },
-      });
-    })();
+  if (existsSync(queriesPath)) {
+    const queries = readdirSync(queriesPath);
+    const queryResolvers: { [query: string]: any } = {};
 
-  const commandHandlersPath = `${aggregateDir}/command_handlers`;
-  if (existsSync(commandHandlersPath)) {
-    const commandHandlerNames = readdirSync(commandHandlersPath);
-    const commandResolvers: { [command: string]: any } = {};
-    commandHandlerNames &&
-      commandHandlerNames
+    if (queries && queries.length > 0) {
+      queries
         .map((name) => name.replace('.js', ''))
         .map((name) => name.replace('.ts', ''))
-        .forEach((commandHandlerName) => {
-          /* eslint-disable-next-line max-len */
-          const commandHandlerModule = requireModule(`${aggregateDir}/command_handlers/${commandHandlerName}`);
-          commandHandlerModule &&
+        .forEach((queryName) => {
+          const queryFile = requireModule(`${aggregateDir}/queries/${queryName}`);
+          if (queryFile) {
             (() => {
-              commandResolvers[commandHandlerName] = convertCommandHandlerToResolver(commandHandlerModule.handler);
+              queryResolvers[queryName] = convertQueryHandlerToResolver(queryFile.handler);
             })();
+          }
         });
+    }
+
+    resolvers = merge(resolvers, {
+      Query: {
+        [aggregateName]: () => queryResolvers,
+      },
+    });
+  }
+
+  // Register mutations resolvers
+  const mutationsPath = `${aggregateDir}/mutations`;
+
+  if (existsSync(mutationsPath)) {
+    const mutations = readdirSync(mutationsPath);
+    const mutationResolvers: { [mutation: string]: any } = {};
+
+    if (mutations && mutations.length > 0) {
+      mutations
+        .map((name) => name.replace('.js', ''))
+        .map((name) => name.replace('.ts', ''))
+        .forEach((mutationName) => {
+          /* eslint-disable-next-line max-len */
+          const mutationFile = requireModule(`${aggregateDir}/mutations/${mutationName}`);
+          if (mutationFile) {
+            (() => {
+              mutationResolvers[mutationName] = convertMutationHandlerToResolver(mutationFile.handler);
+            })();
+          }
+        });
+    }
+
     resolvers = merge(resolvers, {
       Mutation: {
-        [aggregateName]: () => commandResolvers,
+        [aggregateName]: () => mutationResolvers,
       },
     });
   }
@@ -142,6 +151,7 @@ const bootstrapModule = (moduleName: string): ModuleConfiguration => {
   const aggregateNames = readdirSync(`${moduleDir}/aggregates`);
   const configurations: AggregateConfiguration[] = [];
   aggregateNames.forEach((aggregateName) => configurations.push(bootstrapAggregate(aggregateName, moduleName)));
+
   return {
     aggregates: configurations,
   };
