@@ -1,11 +1,12 @@
 import * as yup from 'yup';
 import admin from 'firebase-admin';
-import { Context, validateSchema, AppError, addCreationInfo, LoginTypes, WithoutId, MutationResult } from '@app/core';
+import { validateSchema, AppError, LoginTypes, MutationResult } from '@app/core';
 import { config } from '@app/config';
-import { RegisterWithTokenPayload, ExternalLogin, User } from '../interfaces';
+import { v4 } from 'uuid';
+import { RegisterWithTokenPayload, User } from '../interfaces';
 import { usersRepository } from '../repository';
 
-export const handler = async (payload: RegisterWithTokenPayload, context: Context): Promise<MutationResult<User>> => {
+export const handler = async (payload: RegisterWithTokenPayload): Promise<MutationResult<User>> => {
   // 1. Validate
   await validateSchema(
     yup.object().shape<RegisterWithTokenPayload>({
@@ -21,7 +22,6 @@ export const handler = async (payload: RegisterWithTokenPayload, context: Contex
 
   // 2. Build User record
   let firebaseUser: admin.auth.UserRecord;
-  let loginDetail: ExternalLogin;
 
   try {
     const decodeFirebaseTokenInfo = await admin.auth().verifyIdToken(payload.token);
@@ -31,30 +31,26 @@ export const handler = async (payload: RegisterWithTokenPayload, context: Contex
   }
 
   const providerData = firebaseUser.providerData[0];
+  let loginType = LoginTypes.google;
+  let loginUid = providerData.uid;
   if (providerData.providerId === 'google.com') {
-    loginDetail = {
-      loginType: LoginTypes.google,
-      uid: providerData.uid,
-    };
+    loginType = LoginTypes.google;
+    loginUid = providerData.uid;
   } else if (providerData.providerId === 'facebook.com') {
-    loginDetail = {
-      loginType: LoginTypes.facebook,
-      uid: providerData.uid,
-    };
-  } else {
-    throw new AppError('Invalid login provider', 'auth/invalid-auth-provider');
+    loginType = LoginTypes.facebook;
+    loginUid = providerData.uid;
   }
 
   // 3. Save to db
-  const user: WithoutId<User> = {
+  const user: User = {
+    id: v4(),
     firebaseId: firebaseUser.uid,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     email: payload.email,
     fullName: payload.fullName,
-    loginDetail,
     isActive: true,
-    ...addCreationInfo(context),
+    loginType,
+    loginUid,
   };
-  const newUser = await usersRepository.create(user);
-  return newUser;
+  return usersRepository.create(user);
 };

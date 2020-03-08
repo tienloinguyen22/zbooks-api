@@ -7,5 +7,6 @@ export const handler = async (query: QueryById): Promise<User | undefined> => {
     throw new AppError('User ID is required', 'auth/missing-user-id');
   }
 
-  return usersRepository.findById(query.id);
+  const result = await usersRepository.findById(query.id);
+  return result;
 };

@@ -1,4 +1,4 @@
-import { validateAuthenticate, Context, MutationResult, validateSchema, Genders, addModificationInfo } from '@app/core';
+import { validateAuthenticate, Context, MutationResult, validateSchema, Genders } from '@app/core';
 import * as yup from 'yup';
 import { config } from '@app/config';
 import _ from 'lodash';
@@ -47,11 +47,6 @@ export const handler = async (payload: UpdateUserInfoPayload, context: Context):
   );
 
   // 3. Update db
-  const updatePayload = {
-    id: _.get(context, 'user.id'),
-    ...payload,
-    ...addModificationInfo(context),
-  };
-  const newProfileInfo = await usersRepository.update(updatePayload);
+  const newProfileInfo = await usersRepository.update(_.get(context, 'user.id'), payload);
   return newProfileInfo;
 };

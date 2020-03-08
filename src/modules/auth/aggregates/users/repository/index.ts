@@ -6,7 +6,7 @@ import { UserRepository } from '../interfaces';
 export const usersRepository: UserRepository = {
   createTable: async () => {
     await execMySqlQuery(`CREATE TABLE IF NOT EXISTS users (
-      id VARCHAR(32) NOT NULL UNIQUE PRIMARY KEY,
+      id VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
       email VARCHAR(255) NOT NULL UNIQUE,
       fullName VARCHAR(100) NOT NULL,
       countryCode VARCHAR(10),
@@ -26,49 +26,67 @@ export const usersRepository: UserRepository = {
   create: async (payload) => {
     let query = `INSERT INTO users SET `;
 
+    const keys = Object.keys(payload);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const values = keys.map((key) => (payload as any)[key]);
     // eslint-disable-next-line no-restricted-syntax
-    for (const key of Object.keys(payload)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      query += `${key} = ${(payload as any)[key]}`;
+    for (const key of keys) {
+      query += `${key} = ?`;
+      if (keys.indexOf(key) !== keys.length - 1) {
+        query += `, `;
+      }
     }
     query += `;`;
 
-    return execMySqlQuery(query);
+    await execMySqlQuery(query, values);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return usersRepository.findById(payload.id) as any;
   },
-  update: async (payload) => {
+  update: async (id, payload) => {
     let query = `UPDATE users SET `;
 
+    const keys = Object.keys(payload);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const values = keys.map((key) => (payload as any)[key]);
     // eslint-disable-next-line no-restricted-syntax
-    for (const key of Object.keys(payload)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      query += `${key} = ${(payload as any)[key]}`;
+    for (const key of keys) {
+      query += `${key} = ?`;
+      if (keys.indexOf(key) !== keys.length - 1) {
+        query += `, `;
+      }
     }
-    query += ` WHERE ID = ${payload.id};`;
+    query += ` WHERE id = ?;`;
 
-    return execMySqlQuery(query);
+    await execMySqlQuery(query, [...values, id]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return usersRepository.findById(id) as any;
   },
   findById: async (id) => {
-    const query = `SELECT * FROM users WHERE id = ${id};`;
-    return execMySqlQuery(query);
+    const query = `SELECT * FROM users WHERE id = ? LIMIT 1;`;
+    const result = await execMySqlQuery(query, [id]);
+    return result[0];
   },
   findOne: async (conditions) => {
     let query = `SELECT * FROM users`;
 
     // Add conditions
+    const values: string[] = [];
     if (conditions && conditions.length > 0) {
       query += ` WHERE `;
       // eslint-disable-next-line no-restricted-syntax
       for (const condition of conditions) {
-        query += `${condition.field} ${getConditionOperator(condition.operator)} ${condition.value}`;
+        values.push(condition.value);
+        query += `${condition.field} ${getConditionOperator(condition.operator)} ?`;
       }
     }
     query += `;`;
 
-    return execMySqlQuery(query);
+    const result = await execMySqlQuery(query, values);
+    return result[0];
   },
   findWithOffsetPagination: async (pagination, conditions, orderBy) => {
     let dataQuery = `SELECT * FROM users`;
-    let countQuery = `SELECT COUNT(*) FROM users`;
+    let countQuery = `SELECT COUNT(*) AS total FROM users`;
 
     // Add conditions
     if (conditions && conditions.length > 0) {
@@ -103,7 +121,7 @@ export const usersRepository: UserRepository = {
       data,
       pagination: {
         type: PaginationTypes.OFFSET,
-        total,
+        total: total[0].total,
       },
     };
   },

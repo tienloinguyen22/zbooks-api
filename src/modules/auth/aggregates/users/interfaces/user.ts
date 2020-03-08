@@ -1,10 +1,5 @@
 import { Aggregate, IsAuditable, ISODate, Genders, LoginTypes } from '@app/core';
 
-export type ExternalLogin = {
-  uid: string;
-  loginType: LoginTypes;
-};
-
 export interface User extends Aggregate, IsAuditable {
   email: string;
   fullName: string;
@@ -14,7 +9,8 @@ export interface User extends Aggregate, IsAuditable {
   avatarUrl?: string;
   dob?: ISODate;
   gender?: Genders;
-  loginDetail: ExternalLogin;
+  loginUid: string;
+  loginType: LoginTypes;
   isActive: boolean;
   lastLoggedInAt?: ISODate;
   firebaseId: string;

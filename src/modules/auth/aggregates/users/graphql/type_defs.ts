@@ -23,19 +23,12 @@ export const typeDefs = gql`
     avatarUrl: String
     dob: Date
     gender: Genders
-    loginDetail: ExternalLogin
-    preferenceCategories: [String!]
+    loginUid: String!
+    loginType: LoginTypes
     isActive: Boolean
     lastLoggedInAt: String
-    createdBy: String
     createdAt: String
-    lastModifiedBy: String
-    lastModifiedAt: String
-  }
-
-  type ExternalLogin {
-    uid: String!
-    loginType: LoginTypes
+    updatedAt: String
   }
 
   input FindUserByTokenQuery {
@@ -78,6 +71,5 @@ export const typeDefs = gql`
     avatarUrl: String
     dob: String
     gender: Genders
-    preferenceCategories: [String!]
   }
 `;

@@ -5,7 +5,7 @@ import { usersRepository } from '../repository';
 export const handler = async (query: UserQuery, context: Context): Promise<QueryResult<User>> => {
   const { pageIndex, itemsPerPage, orderBy, ...conditionFields } = query;
 
-  return usersRepository.findWithOffsetPagination(
+  const result = await usersRepository.findWithOffsetPagination(
     {
       type: PaginationTypes.OFFSET,
       pageIndex,
@@ -15,4 +15,5 @@ export const handler = async (query: UserQuery, context: Context): Promise<Query
     orderBy,
     context.fields,
   );
+  return result;
 };
