@@ -1,11 +1,10 @@
-import { Context, validateSchema, AppError, MongoQueryOperators } from '@app/core';
+import { validateSchema, AppError, QueryOperators } from '@app/core';
 import * as yup from 'yup';
 import admin from 'firebase-admin';
-import { FindUserByTokenQuery, User, UserRepository } from '../interfaces';
+import { FindUserByTokenQuery, User } from '../interfaces';
+import { usersRepository } from '../repository';
 
-export const handler = async (query: FindUserByTokenQuery, context: Context): Promise<User | undefined> => {
-  const repository: UserRepository = context.dataSources.users;
-
+export const handler = async (query: FindUserByTokenQuery): Promise<User | undefined> => {
   // 1. Validate
   await validateSchema(
     yup.object().shape<FindUserByTokenQuery>({
@@ -26,10 +25,10 @@ export const handler = async (query: FindUserByTokenQuery, context: Context): Pr
   const conditions = [
     {
       field: 'firebaseId',
-      operator: MongoQueryOperators.equals,
+      operator: QueryOperators.equals,
       value: decodeFirebaseTokenInfo.uid,
     },
   ];
-  const user = await repository.findOne(conditions);
+  const user = await usersRepository.findOne(conditions);
   return user;
 };

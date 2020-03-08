@@ -2,11 +2,10 @@ import { validateAuthenticate, Context, MutationResult, validateSchema, Genders,
 import * as yup from 'yup';
 import { config } from '@app/config';
 import _ from 'lodash';
-import { User, UserRepository, UpdateUserInfoPayload } from '../interfaces';
+import { User, UpdateUserInfoPayload } from '../interfaces';
+import { usersRepository } from '../repository';
 
 export const handler = async (payload: UpdateUserInfoPayload, context: Context): Promise<MutationResult<User>> => {
-  const repository: UserRepository = context.dataSources.users;
-
   // 1. Authenticate
   validateAuthenticate(context.user);
 
@@ -53,6 +52,6 @@ export const handler = async (payload: UpdateUserInfoPayload, context: Context):
     ...payload,
     ...addModificationInfo(context),
   };
-  const newProfileInfo = await repository.update(updatePayload);
+  const newProfileInfo = await usersRepository.update(updatePayload);
   return newProfileInfo;
 };

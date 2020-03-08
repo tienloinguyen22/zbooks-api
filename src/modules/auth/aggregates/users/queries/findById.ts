@@ -1,5 +1,11 @@
-import { QueryById, Context, findById } from '@app/core';
+import { QueryById, AppError } from '@app/core';
 import { User } from '../interfaces';
+import { usersRepository } from '../repository';
 
-export const handler = async (query: QueryById, context: Context): Promise<User | undefined> =>
-  findById(query, context, 'users');
+export const handler = async (query: QueryById): Promise<User | undefined> => {
+  if (!query.id) {
+    throw new AppError('User ID is required', 'auth/missing-user-id');
+  }
+
+  return usersRepository.findById(query.id);
+};

@@ -75,13 +75,21 @@ export const convertMutationHandlerToResolver = (handler: (payload: any, context
   };
 };
 
-const bootstrapAggregate = (aggregateName: string, moduleName: string): AggregateConfiguration => {
+const bootstrapAggregate = async (aggregateName: string, moduleName: string): Promise<AggregateConfiguration> => {
   const aggregateDir = `${modulesDir}/${moduleName}/aggregates/${aggregateName}`;
   const typeDefsModule = requireModule(`${aggregateDir}/graphql/type_defs`);
   const resolversModule = requireModule(`${aggregateDir}/graphql/resolvers`);
   let { resolvers } = resolversModule || {
     resolvers: {},
   };
+
+  // Create aggregate tables if not exists
+  const repositoryPath = `${aggregateDir}/repository`;
+  const repository = requireModule(repositoryPath);
+  const repositoryName = `${aggregateName}Repository`;
+  if (repository && repository[repositoryName] && repository[repositoryName].createTable) {
+    await repository[repositoryName].createTable();
+  }
 
   // Register queries resolvers
   const queriesPath = `${aggregateDir}/queries`;
@@ -146,22 +154,33 @@ const bootstrapAggregate = (aggregateName: string, moduleName: string): Aggregat
   };
 };
 
-const bootstrapModule = (moduleName: string): ModuleConfiguration => {
+const bootstrapModule = async (moduleName: string): Promise<ModuleConfiguration> => {
   const moduleDir = `${modulesDir}/${moduleName}`;
   const aggregateNames = readdirSync(`${moduleDir}/aggregates`);
   const configurations: AggregateConfiguration[] = [];
-  aggregateNames.forEach((aggregateName) => configurations.push(bootstrapAggregate(aggregateName, moduleName)));
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const aggregateName of aggregateNames) {
+    // eslint-disable-next-line no-await-in-loop
+    const aggregateConfigs = await bootstrapAggregate(aggregateName, moduleName);
+    configurations.push(aggregateConfigs);
+  }
 
   return {
     aggregates: configurations,
   };
 };
 
-export const bootstrapModules = (): BootstrapModulesConfiguration => {
+export const bootstrapModules = async (): Promise<BootstrapModulesConfiguration> => {
   const moduleNames = readdirSync(modulesDir);
 
   const configurations: ModuleConfiguration[] = [];
-  moduleNames.forEach((moduleName) => configurations.push(bootstrapModule(moduleName)));
+  // eslint-disable-next-line no-restricted-syntax
+  for (const moduleName of moduleNames) {
+    // eslint-disable-next-line no-await-in-loop
+    const aggregateConfigs = await bootstrapModule(moduleName);
+    configurations.push(aggregateConfigs);
+  }
 
   const typeDefs = [baseTypeDefs];
   configurations.forEach((config) => config.aggregates.forEach((agg) => typeDefs.push(agg.typeDefs)));

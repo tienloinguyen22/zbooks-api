@@ -1,4 +1,4 @@
-export enum MongoQueryOperators {
+export enum QueryOperators {
   textSearch = 'textSearch',
   equals = 'equals',
   ne = 'ne',
@@ -10,7 +10,7 @@ export enum MongoQueryOperators {
 
 export interface Condition<T> {
   field: string;
-  operator: MongoQueryOperators;
+  operator: QueryOperators;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }

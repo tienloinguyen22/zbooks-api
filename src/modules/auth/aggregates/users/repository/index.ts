@@ -1,83 +1,110 @@
-import { MongoRepository, createMongoModel, Genders, LoginTypes } from '@app/core';
-import { Schema } from 'mongoose';
-import { User } from '../interfaces';
+import { Genders, LoginTypes, execMySqlQuery, getConditionOperator, PaginationTypes } from '@app/core';
+import _ from 'lodash';
+import { config } from '@app/config';
+import { UserRepository } from '../interfaces';
 
-const LoginDetailSchema = new Schema({
-  uid: {
-    type: String,
-    required: true,
+export const usersRepository: UserRepository = {
+  createTable: async () => {
+    await execMySqlQuery(`CREATE TABLE IF NOT EXISTS users (
+      id VARCHAR(32) NOT NULL UNIQUE PRIMARY KEY,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      fullName VARCHAR(100) NOT NULL,
+      countryCode VARCHAR(10),
+      phoneNo VARCHAR(15),
+      address VARCHAR(255),
+      avatarUrl VARCHAR(2083),
+      dob TIMESTAMP,
+      gender ENUM('${Genders.female}', '${Genders.male}', '${Genders.other}'),
+      loginUid VARCHAR(100) NOT NULL UNIQUE,
+      loginType ENUM('${LoginTypes.facebook}', '${LoginTypes.google}'),
+      isActive BOOLEAN DEFAULT true,
+      firebaseId VARCHAR(100),
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );`);
   },
-  loginType: {
-    type: String,
-    enum: [LoginTypes.facebook, LoginTypes.google],
+  create: async (payload) => {
+    let query = `INSERT INTO users SET `;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of Object.keys(payload)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      query += `${key} = ${(payload as any)[key]}`;
+    }
+    query += `;`;
+
+    return execMySqlQuery(query);
   },
-});
+  update: async (payload) => {
+    let query = `UPDATE users SET `;
 
-const model = createMongoModel({
-  name: 'User',
-  schema: new Schema({
-    firebaseId: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    fullName: {
-      type: String,
-      required: true,
-    },
-    countryCode: {
-      type: String,
-    },
-    phoneNo: {
-      type: String,
-    },
-    address: {
-      type: String,
-    },
-    avatarUrl: {
-      type: String,
-    },
-    dob: {
-      type: Date,
-    },
-    gender: {
-      type: String,
-      enum: [Genders.female, Genders.male, Genders.other],
-    },
-    loginDetail: LoginDetailSchema,
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    lastLoggedInAt: {
-      type: Date,
-    },
-    preferenceCategories: {
-      type: [String],
-      default: [],
-    },
-  })
-    .index(
-      {
-        fullName: 'text',
-        email: 'text',
-        phoneNo: 'text',
-      },
-      {
-        name: 'usersTextSearch',
-      },
-    )
-    .index({
-      firebaseId: 1,
-    }),
-});
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of Object.keys(payload)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      query += `${key} = ${(payload as any)[key]}`;
+    }
+    query += ` WHERE ID = ${payload.id};`;
 
-export class UsersRepository extends MongoRepository<User> {
-  constructor() {
-    super(model);
-  }
-}
+    return execMySqlQuery(query);
+  },
+  findById: async (id) => {
+    const query = `SELECT * FROM users WHERE id = ${id};`;
+    return execMySqlQuery(query);
+  },
+  findOne: async (conditions) => {
+    let query = `SELECT * FROM users`;
+
+    // Add conditions
+    if (conditions && conditions.length > 0) {
+      query += ` WHERE `;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const condition of conditions) {
+        query += `${condition.field} ${getConditionOperator(condition.operator)} ${condition.value}`;
+      }
+    }
+    query += `;`;
+
+    return execMySqlQuery(query);
+  },
+  findWithOffsetPagination: async (pagination, conditions, orderBy) => {
+    let dataQuery = `SELECT * FROM users`;
+    let countQuery = `SELECT COUNT(*) FROM users`;
+
+    // Add conditions
+    if (conditions && conditions.length > 0) {
+      dataQuery += ` WHERE `;
+      countQuery += ` WHERE `;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const condition of conditions) {
+        dataQuery += `${condition.field} ${getConditionOperator(condition.operator)} ${condition.value}`;
+        countQuery += `${condition.field} ${getConditionOperator(condition.operator)} ${condition.value}`;
+      }
+    }
+
+    // Add order by
+    if (orderBy) {
+      const [field, sort] = orderBy.split('_');
+      dataQuery += ` ORDER BY ${field} ${sort.toUpperCase()}`;
+    } else {
+      dataQuery += ` ORDER BY createdAt DESC`;
+    }
+
+    // Add pagination
+    const limit = pagination.itemsPerPage;
+    const offset = _.get(pagination, 'pageIndex', 0) * _.get(pagination, 'itemsPerPage', config.itemsPerPage.default);
+    dataQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+
+    dataQuery += `;`;
+    countQuery += `;`;
+
+    const [data, total] = await Promise.all([execMySqlQuery(dataQuery), execMySqlQuery(countQuery)]);
+
+    return {
+      data,
+      pagination: {
+        type: PaginationTypes.OFFSET,
+        total,
+      },
+    };
+  },
+};

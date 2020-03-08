@@ -1,6 +1,6 @@
 export * from './interfaces';
 
-export * from './mongo';
+export * from './mysql';
 
 export * from './i18n';
 

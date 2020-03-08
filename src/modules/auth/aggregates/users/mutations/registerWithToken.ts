@@ -2,11 +2,10 @@ import * as yup from 'yup';
 import admin from 'firebase-admin';
 import { Context, validateSchema, AppError, addCreationInfo, LoginTypes, WithoutId, MutationResult } from '@app/core';
 import { config } from '@app/config';
-import { UserRepository, RegisterWithTokenPayload, ExternalLogin, User } from '../interfaces';
+import { RegisterWithTokenPayload, ExternalLogin, User } from '../interfaces';
+import { usersRepository } from '../repository';
 
 export const handler = async (payload: RegisterWithTokenPayload, context: Context): Promise<MutationResult<User>> => {
-  const repository: UserRepository = context.dataSources.users;
-
   // 1. Validate
   await validateSchema(
     yup.object().shape<RegisterWithTokenPayload>({
@@ -54,9 +53,8 @@ export const handler = async (payload: RegisterWithTokenPayload, context: Contex
     fullName: payload.fullName,
     loginDetail,
     isActive: true,
-    preferenceCategories: [],
     ...addCreationInfo(context),
   };
-  const newUser = await repository.create(user);
+  const newUser = await usersRepository.create(user);
   return newUser;
 };
