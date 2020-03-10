@@ -54,6 +54,7 @@ export const typeDefs = gql`
   type UserOperations {
     me(payload: UpdateUserInfoPayload): User
     registerWithToken(payload: RegisterWithTokenPayload!): User
+    seedUsers(payload: SeedUsersPayload): [User]
   }
 
   input RegisterWithTokenPayload {
@@ -71,5 +72,9 @@ export const typeDefs = gql`
     avatarUrl: String
     dob: String
     gender: Genders
+  }
+
+  input SeedUsersPayload {
+    numberOfUsers: Int
   }
 `;
