@@ -7,6 +7,7 @@ export const handler = async (query: QueryById): Promise<User | undefined> => {
     throw new AppError('User ID is required', 'auth/missing-user-id');
   }
 
-  const result = await usersRepository.findById(query.id);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const result = await usersRepository.findById!(query.id);
   return result;
 };

@@ -1,12 +1,12 @@
 import { Context, QueryResult, PaginationTypes, buildConditions } from '@app/core';
-import { User, UserQuery } from '../interfaces';
-import { usersRepository } from '../repository';
+import { provincesRepository } from '../repository';
+import { Province, ProvinceQuery } from '../interfaces';
 
-export const handler = async (query: UserQuery, context: Context): Promise<QueryResult<User>> => {
+export const handler = async (query: ProvinceQuery, context: Context): Promise<QueryResult<Province>> => {
   const { pageIndex, itemsPerPage, orderBy, ...conditionFields } = query;
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const result = await usersRepository.findWithOffsetPagination!(
+  const result = await provincesRepository.findWithOffsetPagination!(
     {
       type: PaginationTypes.OFFSET,
       pageIndex,

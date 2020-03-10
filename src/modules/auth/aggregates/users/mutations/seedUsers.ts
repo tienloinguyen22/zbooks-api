@@ -26,11 +26,11 @@ const createFirebaseAndMongoUser = async (): Promise<User> => {
     user.loginType = [LoginTypes.facebook, LoginTypes.google][Math.floor(Math.random() * 2)];
     user.firebaseId = firebaseUser.uid;
   } catch (error) {
-    throw new AppError(error.message, 'INVALID_FIREBASE_INFO');
+    throw new AppError(error.message, 'auth/invalid-firebase-info');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return usersRepository.create(user as any);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any
+  return usersRepository.create!(user as any);
 };
 
 export const handler = async (payload: SeedUsersPayload, context: Context): Promise<MutationResult<User>[]> => {
@@ -39,7 +39,7 @@ export const handler = async (payload: SeedUsersPayload, context: Context): Prom
 
   // 2. Validate
   if (payload.numberOfUsers < 0) {
-    throw new AppError('Invalid number of users to generate', 'INVALID_NUMBER_OF_USERS');
+    throw new AppError('Invalid number of users to generate', 'auth/invalid-number-of-users');
   }
   const numberOfUsers = payload.numberOfUsers > 1000 ? 1000 : payload.numberOfUsers;
 

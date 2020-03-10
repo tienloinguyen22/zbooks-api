@@ -29,6 +29,7 @@ export const handler = async (query: FindUserByTokenQuery): Promise<User | undef
       value: decodeFirebaseTokenInfo.uid,
     },
   ];
-  const user = await usersRepository.findOne(conditions);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const user = await usersRepository.findOne!(conditions);
   return user;
 };

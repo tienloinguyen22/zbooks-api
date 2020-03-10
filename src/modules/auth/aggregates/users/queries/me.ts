@@ -9,6 +9,7 @@ export const handler = async (_query: {}, context: Context): Promise<User | unde
 
   // 2. Query database
   const id = _.get(context, 'user.id');
-  const user = await usersRepository.findById(id);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const user = await usersRepository.findById!(id);
   return user;
 };

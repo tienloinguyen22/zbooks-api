@@ -52,5 +52,6 @@ export const handler = async (payload: RegisterWithTokenPayload): Promise<Mutati
     loginType,
     loginUid,
   };
-  return usersRepository.create(user);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return usersRepository.create!(user);
 };

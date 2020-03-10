@@ -47,6 +47,7 @@ export const handler = async (payload: UpdateUserInfoPayload, context: Context):
   );
 
   // 3. Update db
-  const newProfileInfo = await usersRepository.update(_.get(context, 'user.id'), payload);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const newProfileInfo = await usersRepository.update!(_.get(context, 'user.id'), payload);
   return newProfileInfo;
 };

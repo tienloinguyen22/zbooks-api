@@ -27,6 +27,8 @@ export const validateToken = async (token: string): Promise<AuthUser | undefined
           roles: [],
         };
       }
+
+      return undefined;
     }
 
     return undefined;

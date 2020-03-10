@@ -40,7 +40,7 @@ export const usersRepository: UserRepository = {
 
     await execMySqlQuery(query, values);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return usersRepository.findById(payload.id) as any;
+    return usersRepository.findById ? (usersRepository.findById(payload.id) as any) : undefined;
   },
   update: async (id, payload) => {
     let query = `UPDATE users SET `;
@@ -59,7 +59,7 @@ export const usersRepository: UserRepository = {
 
     await execMySqlQuery(query, [...values, id]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return usersRepository.findById(id) as any;
+    return usersRepository.findById ? (usersRepository.findById(id) as any) : undefined;
   },
   findById: async (id) => {
     const query = `SELECT * FROM users WHERE id = ? LIMIT 1;`;
