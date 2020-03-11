@@ -11,7 +11,7 @@ export const handler = async (payload: SeedBrandsPayload, context: Context): Pro
 
   // 2. Validate
   if (payload.numberOfBrands < 0) {
-    throw new AppError('Invalid number of brands to generate', 'posts/invalid-number-of-provinces');
+    throw new AppError('Invalid number of brands to generate', 'posts/invalid-number-of-brands');
   }
   const numberOfUsers = payload.numberOfBrands > 1000 ? 1000 : payload.numberOfBrands;
 
