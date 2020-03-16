@@ -1,24 +1,44 @@
 import { execMySqlQuery, getConditionOperator, PaginationTypes } from '@app/core';
 import _ from 'lodash';
 import { config } from '@app/config';
-import { ModelRepository } from '../interfaces';
+import { PostRepository } from '../interfaces';
 
-export const modelsRepository: ModelRepository = {
+export const postsRepository: PostRepository = {
   createTable: async () => {
-    await execMySqlQuery(`CREATE TABLE IF NOT EXISTS models (
+    await execMySqlQuery(`CREATE TABLE IF NOT EXISTS posts (
       id VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
-      name VARCHAR(100) NOT NULL UNIQUE,
-      slug VARCHAR(100) NOT NULL UNIQUE,
-      brandId VARCHAR(100) NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      conditions ENUM('NEW', 'USED', 'LIQUIDATE'),
+      description VARCHAR(2083) NOT NULL,
+      priceType ENUM('FIXED', 'NEGOTIATE'),
+      price BIGINT,
+      postType ENUM('BUY', 'SELL', 'RENT', 'LEASE'),
+      ownerId VARCHAR(100) NOT NULL,
+      shopId VARCHAR(100),
+      provinceId VARCHAR(100) NOT NULL,
+      status ENUM('REVIEWING', 'DELETED', 'COMPLETED', 'REJECTED', 'PUBLIC'),
+      usedHours INT,
+      serialNo VARCHAR(100),
       categoryId VARCHAR(100) NOT NULL,
+      brandId VARCHAR(100) NOT NULL,
+      modelId VARCHAR(100) NOT NULL,
+      weight INT,
+      releasedYear YEAR(4),
+      reviewedAt TIMESTAMP,
+      reviewedBy VARCHAR(100),
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY(ownerId) REFERENCES users(id),
+      FOREIGN KEY(shopId) REFERENCES shops(id),
+      FOREIGN KEY(provinceId) REFERENCES provinces(id),
       FOREIGN KEY(categoryId) REFERENCES categories(id),
-      FOREIGN KEY(brandId) REFERENCES brands(id)
+      FOREIGN KEY(brandId) REFERENCES brands(id),
+      FOREIGN KEY(modelId) REFERENCES models(id),
+      FOREIGN KEY(reviewedBy) REFERENCES users(id)
     );`);
   },
   create: async (payload) => {
-    let query = `INSERT INTO models SET `;
+    let query = `INSERT INTO posts SET `;
 
     const keys = Object.keys(payload);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,16 +54,16 @@ export const modelsRepository: ModelRepository = {
 
     await execMySqlQuery(query, values);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return modelsRepository.findById ? (modelsRepository.findById(payload.id) as any) : undefined;
+    return postsRepository.findById ? (postsRepository.findById(payload.id) as any) : undefined;
   },
   findById: async (id) => {
-    const query = `SELECT * FROM models WHERE id = ? LIMIT 1;`;
+    const query = `SELECT * FROM posts WHERE id = ? LIMIT 1;`;
     const result = await execMySqlQuery(query, [id]);
     return result[0];
   },
   findWithOffsetPagination: async (pagination, conditions, orderBy) => {
-    let dataQuery = `SELECT * FROM models`;
-    let countQuery = `SELECT COUNT(*) AS total FROM models`;
+    let dataQuery = `SELECT * FROM posts`;
+    let countQuery = `SELECT COUNT(*) AS total FROM posts`;
 
     // Add conditions
     if (conditions && conditions.length > 0) {
@@ -81,13 +101,5 @@ export const modelsRepository: ModelRepository = {
         total: total[0].total,
       },
     };
-  },
-  findRandom: async () => {
-    const results = await execMySqlQuery(`SELECT * FROM models
-      ORDER BY RAND()
-      LIMIT 1;
-    `);
-
-    return results[0];
   },
 };

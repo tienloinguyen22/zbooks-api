@@ -79,4 +79,12 @@ export const categoriesRepository: CategoryRepository = {
       },
     };
   },
+  findRandom: async () => {
+    const results = await execMySqlQuery(`SELECT * FROM categories
+      ORDER BY RAND()
+      LIMIT 1;
+    `);
+
+    return results[0];
+  },
 };

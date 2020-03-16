@@ -4,7 +4,7 @@ import { Brand } from '../interfaces';
 
 export const handler = async (query: QueryById): Promise<Brand | undefined> => {
   if (!query.id) {
-    throw new AppError('Category ID is required', 'posts/missing-category-id');
+    throw new AppError('Brand ID is required', 'posts/missing-brand-id');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

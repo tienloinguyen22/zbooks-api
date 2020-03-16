@@ -125,4 +125,12 @@ export const usersRepository: UserRepository = {
       },
     };
   },
+  findRandom: async () => {
+    const results = await execMySqlQuery(`SELECT * FROM users
+      ORDER BY RAND()
+      LIMIT 1;
+    `);
+
+    return results[0];
+  },
 };

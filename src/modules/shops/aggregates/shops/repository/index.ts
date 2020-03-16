@@ -87,4 +87,12 @@ export const shopsRepository: ShopRepository = {
       },
     };
   },
+  findRandom: async () => {
+    const results = await execMySqlQuery(`SELECT * FROM shops
+      ORDER BY RAND()
+      LIMIT 1;
+    `);
+
+    return results[0];
+  },
 };

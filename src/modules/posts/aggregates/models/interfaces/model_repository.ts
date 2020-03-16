@@ -1,4 +1,6 @@
 import { Repository } from '@app/core';
 import { Model } from '.';
 
-export type ModelRepository = Repository<Model>;
+export type ModelRepository = Repository<Model> & {
+  findRandom(): Promise<Model>;
+};

@@ -79,4 +79,12 @@ export const brandsRepository: BrandRepository = {
       },
     };
   },
+  findRandom: async () => {
+    const results = await execMySqlQuery(`SELECT * FROM brands
+      ORDER BY RAND()
+      LIMIT 1;
+    `);
+
+    return results[0];
+  },
 };

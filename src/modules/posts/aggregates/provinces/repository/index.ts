@@ -78,4 +78,12 @@ export const provincesRepository: ProvinceRepository = {
       },
     };
   },
+  findRandom: async () => {
+    const results = await execMySqlQuery(`SELECT * FROM provinces
+      ORDER BY RAND()
+      LIMIT 1;
+    `);
+
+    return results[0];
+  },
 };
