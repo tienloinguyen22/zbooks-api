@@ -14,6 +14,7 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     slug: String!
+    totalPosts: Int!
     createdAt: String
     updatedAt: String
   }

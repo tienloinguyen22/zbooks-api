@@ -26,7 +26,8 @@ export const handler = async (payload: SeedProvincesPayload, context: Context): 
         id: v4(),
         name,
         slug,
-      }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any),
     );
   }
 

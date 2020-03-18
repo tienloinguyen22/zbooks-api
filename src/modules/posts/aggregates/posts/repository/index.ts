@@ -110,4 +110,23 @@ export const postsRepository: PostRepository = {
 
     return results[0];
   },
+  countPosts: async (conditions) => {
+    let countQuery = `SELECT COUNT(*) AS total FROM posts`;
+
+    // Add conditions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const values: any[] = [];
+    if (conditions && conditions.length > 0) {
+      countQuery += ` WHERE `;
+      // eslint-disable-next-line no-restricted-syntax
+      for (const condition of conditions) {
+        values.push(condition.value);
+        countQuery += `${condition.field} ${getConditionOperator(condition.operator)} ?`;
+      }
+    }
+    countQuery += `;`;
+
+    const total = await execMySqlQuery(countQuery, values);
+    return total[0].total;
+  },
 };
