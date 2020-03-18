@@ -1,44 +1,21 @@
 import { execMySqlQuery, getConditionOperator, PaginationTypes } from '@app/core';
 import _ from 'lodash';
 import { config } from '@app/config';
-import { PostRepository } from '../interfaces';
+import { PostImageRepository } from '../interfaces';
 
-export const postsRepository: PostRepository = {
+export const postImagesRepository: PostImageRepository = {
   createTable: async () => {
-    await execMySqlQuery(`CREATE TABLE IF NOT EXISTS posts (
+    await execMySqlQuery(`CREATE TABLE IF NOT EXISTS postImages (
       id VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
-      title VARCHAR(255) NOT NULL,
-      conditions ENUM('NEW', 'USED', 'LIQUIDATE'),
-      description VARCHAR(2083) NOT NULL,
-      priceType ENUM('FIXED', 'NEGOTIATE'),
-      price BIGINT,
-      postType ENUM('BUY', 'SELL', 'RENT', 'LEASE'),
-      ownerId VARCHAR(100) NOT NULL,
-      shopId VARCHAR(100),
-      provinceId VARCHAR(100) NOT NULL,
-      status ENUM('REVIEWING', 'DELETED', 'COMPLETED', 'REJECTED', 'PUBLIC'),
-      usedHours INT,
-      serialNo VARCHAR(100),
-      categoryId VARCHAR(100) NOT NULL,
-      brandId VARCHAR(100) NOT NULL,
-      modelId VARCHAR(100) NOT NULL,
-      weight INT,
-      releasedYear YEAR(4),
-      reviewedAt TIMESTAMP,
-      reviewedBy VARCHAR(100),
+      imageUrl VARCHAR(2083) NOT NULL,
+      postId VARCHAR(100) NOT NULL,
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      FOREIGN KEY(ownerId) REFERENCES users(id),
-      FOREIGN KEY(shopId) REFERENCES shops(id),
-      FOREIGN KEY(provinceId) REFERENCES provinces(id),
-      FOREIGN KEY(categoryId) REFERENCES categories(id),
-      FOREIGN KEY(brandId) REFERENCES brands(id),
-      FOREIGN KEY(modelId) REFERENCES models(id),
-      FOREIGN KEY(reviewedBy) REFERENCES users(id)
+      FOREIGN KEY(postId) REFERENCES posts(id)
     );`);
   },
   create: async (payload) => {
-    let query = `INSERT INTO posts SET `;
+    let query = `INSERT INTO postImages SET `;
 
     const keys = Object.keys(payload);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,16 +31,16 @@ export const postsRepository: PostRepository = {
 
     await execMySqlQuery(query, values);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return postsRepository.findById ? (postsRepository.findById(payload.id) as any) : undefined;
+    return postImagesRepository.findById ? (postImagesRepository.findById(payload.id) as any) : undefined;
   },
   findById: async (id) => {
-    const query = `SELECT * FROM posts WHERE id = ? LIMIT 1;`;
+    const query = `SELECT * FROM postImages WHERE id = ? LIMIT 1;`;
     const result = await execMySqlQuery(query, [id]);
     return result[0];
   },
   findWithOffsetPagination: async (pagination, conditions, orderBy) => {
-    let dataQuery = `SELECT * FROM posts`;
-    let countQuery = `SELECT COUNT(*) AS total FROM posts`;
+    let dataQuery = `SELECT * FROM postImages`;
+    let countQuery = `SELECT COUNT(*) AS total FROM postImages`;
 
     // Add conditions
     if (conditions && conditions.length > 0) {
@@ -102,12 +79,8 @@ export const postsRepository: PostRepository = {
       },
     };
   },
-  findRandom: async () => {
-    const results = await execMySqlQuery(`SELECT * FROM posts
-      ORDER BY RAND()
-      LIMIT 1;
-    `);
-
-    return results[0];
+  findAllByPostId: async (postId) => {
+    const result = await execMySqlQuery(`SELECT * FROM postImages WHERE postId = ?;`, postId);
+    return result;
   },
 };

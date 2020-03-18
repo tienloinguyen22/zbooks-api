@@ -1,31 +1,10 @@
-CREATE TALBE IF NOT EXISTS posts (
+CREATE TABLE IF NOT EXISTS (
   id VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  condition ENUM('NEW', 'USED', 'LIQUIDATE'),
-  description VARCHAR(2000) NOT NULL,
-  priceType ENUM('FIXED', 'NEGOTIATE'),
-  price INT,
-  postType ENUM('BUY', 'SELL', 'RENT', 'LEASE'),
-  ownerId VARCHAR(100) NOT NULL,
-  shopId VARCHAR(100),
-  provinceId VARCHAR(100) NOT NULL,
-  status ENUM('REVIEWING', 'DELETED', 'COMPLETED', 'REJECTED', 'PUBLIC'),
-  usedHours INT,
-  serialNo VARCHAR(100),
-  categoryId VARCHAR(100) NOT NULL,
-  brandId VARCHAR(100) NOT NULL,
-  modelId VARCHAR(100) NOT NULL,
-  weight INT,
-  releasedYear YEAR(4),
-  reviewedAt TIMESTAMP,
-  reviewedBy VARCHAR(100),
+  imageUrl VARCHAR(2083) NOT NULL,
+  postId VARCHAR(100) NOT NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY(ownerId) REFERENCES users(id),
-  FOREIGN KEY(shopId) REFERENCES shops(id),
-  FOREIGN KEY(provinceId) REFERENCES provinces(id),
-  FOREIGN KEY(categoryId) REFERENCES categories(id),
-  FOREIGN KEY(brandId) REFERENCES brands(id),
-  FOREIGN KEY(modelId) REFERENCES models(id),
-  FOREIGN KEY(reviewedBy) REFERENCES users(id)
+  FOREIGN KEY(postId) REFERENCES posts(id)
 );
+
+SELECT * FROM postImages WHERE postId = ;
