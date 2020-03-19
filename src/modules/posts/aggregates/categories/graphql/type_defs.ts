@@ -15,6 +15,7 @@ export const typeDefs = gql`
     name: String!
     slug: String!
     imageUrl: String!
+    totalPosts: Int
     createdAt: String
     updatedAt: String
   }

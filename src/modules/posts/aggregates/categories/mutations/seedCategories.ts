@@ -31,7 +31,8 @@ export const handler = async (
         name,
         slug,
         imageUrl: faker.image.imageUrl(),
-      }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any),
     );
   }
 
