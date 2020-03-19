@@ -28,7 +28,8 @@ export const handler = async (payload: SeedBrandsPayload, context: Context): Pro
         name,
         slug,
         imageUrl: faker.image.imageUrl(),
-      }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any),
     );
   }
 
