@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/runtime": "^7.5.5",
     "apollo-datasource": "^0.6.3",
-    "apollo-server-express": "^2.9.7",
+    "apollo-server-express": "^2.14.2",
     "apollo-server-lambda": "^2.9.6",
     "dayjs": "^1.8.16",
     "express": "^4.17.1",
